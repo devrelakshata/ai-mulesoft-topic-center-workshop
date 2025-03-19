@@ -1,0 +1,273 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Background check",
+    "description": "This API offers operations to list all assets and retrieve detailed information about a specific asset",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://backoundcheck-app-cvjf4.5sc6y6-3.usa-e2.cloudhub.io"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic",
+        "x-authorization": "Bearer secret"
+      }
+    }
+  },
+  "security": [
+    {
+      "basicAuth": []
+    }
+  ],
+  "x-sfdc": {
+    "agent": {
+      "topic": {
+        "name": "Background_topic",
+        "classificationDescription": "Provide the user with a status of their background check. Give information to a user if the background check is complete",
+        "scope": "Your job is only to provide status of the background check and give information about the completed background check",
+        "instructions": [
+          "Always give the status before the full background information. Ask the user if they want to get the full background check details and provide the details on an affirmative user input, along with an offer to help schedule a casting call",
+          "If the user provides their email, ask them to confirm the one time code that was sent to their email",
+          "If the validation code is correct, provide the background check status",
+          "Given an email provided by the user, returns a detailed results for your background check. The list includes each subject and their status",
+          "When providing the background check status. provide the status, the program, and the filing date in bullet points"
+        ]
+      }
+    }
+  },
+  "paths": {
+    "/generate-token": {
+      "description": "Background check endpoint",
+      "post": {
+        "description": "Obtain a one-time token to be use in CheckBackground",
+        "x-sfdc": {
+          "agent": {
+            "action": {
+              "publishAsAgentAction": true
+            }
+          }
+        },
+        "operationId": "GenerateOneTimeToken",
+        "summary": "Obtain a one-time token to be use in CheckBackground ",
+        "requestBody": {
+          "description": "Request body for generate-token",
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "x-sfdc": {
+                    "agent": {
+                        "action": {
+                            "isUserInput": true
+                        }
+                    }
+                },
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "description": "The email where the one-time token will be sent"
+                  }
+                },
+                "example": {
+                  "email": "sofiarodriguez@example.com"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns Background status for a given employee",
+            "content": {
+              "application/json": {
+                "schema": {
+                "additionalProperties": false,
+                  "x-sfdc": {
+                    "privacy": {
+                      "isPII": true
+                    },
+                    "agent": {
+                        "action": {
+                            "isDisplayable": true
+                        }
+                    }
+                  },
+                  
+                  "type": "object",
+                  "title": "OneTimeToken",
+                  "properties": {
+                    "token": {
+                      "description": "One-time token",
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "token": "bm7d39"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/background/check": {
+      "description": "Background check endpoint",
+      "post": {
+        "x-sfdc": {
+          "agent": {
+            "action": {
+              "publishAsAgentAction": true
+            }
+          }
+        },
+        "operationId": "CheckBackground",
+        "summary": "Return the background status for a given employee email",
+        "description": "Return the background status for a given employee email",
+        "requestBody": {
+          "description": "Request body for background check",
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "x-sfdc": {
+                  "agent": {
+                    "action": {
+                        "isUserInput": true
+                    }
+                  }
+                },
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "description": "One-time token"
+                  }
+                },
+                "example": {
+                  "deviceType": "bm7d39"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns Background status for a given employee",
+            "content": {
+              "application/json": {
+                "schema": {
+                    "additionalProperties": false,
+                    "x-sfdc": {
+                    "agent": {
+                      "action": {
+                          "isDisplayable": true
+                      }
+                    }
+                  },
+                  "type": "object",
+                  "title": "BackgroundStatus",
+                  "properties": {
+                    "filingDate": {
+                      "description": "Filing Date",
+                      "type": "string"
+                    },
+                    "applicantName": {
+                      "description": "Name of Applicant",
+                      "type": "string"
+                    },
+                    "email": {
+                      "description": "Employee Email",
+                      "type": "string"
+                    },
+                    "program": {
+                      "description": "Program Name",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "Background Status",
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "filingDate": "8/21/24",
+                    "applicantName": "Sofia Rodriguez",
+                    "email": "sofiarodriguez@example.com",
+                    "program": "Hooping with the Stars",
+                    "status": "Complete"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/background/reviewResult": {
+      "post": {
+        "operationId": "ReviewResults",
+        "summary": "Review the result of the program",
+        "description": "Review the result of the program",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "x-sfdc": {
+                    "agent": {
+                        "action": {
+                            "isUserInput": true
+                        }
+                    }
+                },
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "description": "The Email of the applicant"
+                  }
+                },
+                "example": {
+                  "email": "sofiarodriguez@example.com"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a detailed results for your background check. The list includes each subject and their status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "DetailedReview",
+                  "x-sfdc": {
+                      "agent": {
+                          "action": {
+                              "isDisplayable": true
+                          }
+                      }
+                  },
+                  "properties": {
+                    "statuses": {
+                      "description": "List of subjects with their status and status's icon",
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "statuses": "[{report: Coral Studios Background Check, status: Approved, icon:green_check}, {subject: Employment History, status: Verified, icon:office}, {subject: Criminal Record Check, status: Clean, icon:star}, {subject: Credit History Check, status: Passed, icon:green_check}, {subject: Social Media Screening, status: No issues found, icon:magnifier}]"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
